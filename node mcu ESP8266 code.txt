@@ -1,0 +1,51 @@
+// code for automatic plant monitoring system
+#define BLYNK_PRINT Serial
+#include <ESP8266WiFi.h>
+#include <BlynkSimpleEsp8266.h>
+#include <DHT.h>
+
+char auth[] = "4-cfQMyoHQqGth5v0lsrNJc0CEC3u6UZ"; 
+char ssid[] = "smart agro"; 
+char pass[] = "123456789";  
+
+int readD1;
+int readD2;
+int moisture_sensor1;
+int moisture_sensor2;
+int Pin_D1 = 5;
+int Pin_D2 = 4;
+int Pin_D4 = 2;
+#define DHTPIN 0 
+#define DHTTYPE DHT11 
+
+const int dry = 600; // value for dry sensor
+const int wet = 200; // value for wet sensor
+
+DHT dht(DHTPIN, DHTTYPE);
+BlynkTimer timer;
+
+void setup() 
+{ 
+  Serial.begin(9600);
+  pinMode(Pin_D1, OUTPUT);
+  pinMode(Pin_D2, OUTPUT);
+  pinMode(Pin_D4, OUTPUT);
+  pinMode(A0, INPUT);
+
+  timer.setInterval(1000L, sendSensor);
+  Blynk.begin(auth, ssid, pass);
+} 
+
+void sendSensor()
+{
+  float h = dht.readHumidity();
+  float t = dht.readTemperature(); 
+  Blynk.virtualWrite(V7, t);
+  Blynk.virtualWrite(V8, h);
+}
+ 
+void loop() 
+{
+  Blynk.run();
+  timer.run();
+}
